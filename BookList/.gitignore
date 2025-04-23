@@ -1,0 +1,49 @@
+# .NET build output
+bin/
+obj/
+
+# User-specific files
+.vscode/
+.idea/
+
+# Configuration files
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+
+# Docker-related files
+docker-compose.override.yml
+docker-compose.yml
+Dockerfile
+.docker/
+
+# .env files
+.env
+.env.local
+.env.development
+.env.production
+
+# Entity Framework migrations
+Migrations/
+
+# Local db files
+*.mdf
+*.ldf
+
+# JetBrains Rider IDE files
+.idea/
+
+# Windows Installer files
+Thumbs.db
+ehthumbs.db
+
+# macOS Finder files
+.DS_Store
+
+# Node.js (if applicable in your project, like for frontend or other services)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# ASP.NET Core logs
+logs/
