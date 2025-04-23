@@ -90,7 +90,6 @@ public class Program
         builder.Logging.SetMinimumLevel(LogLevel.Debug); // Set minimum log level
     }
 
-    // Register services (DI container)
     private static void ConfigureServices(WebApplicationBuilder builder)
     {
         // Configure DbContext
