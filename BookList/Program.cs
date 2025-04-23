@@ -82,7 +82,6 @@ public class Program
         }
     }
 
-    // Configure logging
     private static void ConfigureLogging(WebApplicationBuilder builder)
     {
         builder.Logging.ClearProviders();  // Clear default loggers
@@ -92,7 +91,6 @@ public class Program
 
     private static void ConfigureServices(WebApplicationBuilder builder)
     {
-        // Configure DbContext
         builder.Services.AddDbContext<BookContext>(options =>
             options.UseNpgsql(GetDatabaseConnectionString()));
 
