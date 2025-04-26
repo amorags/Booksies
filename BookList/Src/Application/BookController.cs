@@ -1,68 +1,48 @@
 using Microsoft.AspNetCore.Mvc;
 using BookList.Domain;
+using BookList.Application.Dtos;
+using BookList.Services.Interfaces;
 
-[ApiController]
-[Route("api/[controller]")]
-public class BookController : ControllerBase
+namespace BookList.Api.Controllers // <-- or whatever your namespace is
 {
-    private readonly BookRepo _bookRepo;
-
-    public BookController(BookRepo bookRepo)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class BookController : ControllerBase
     {
-        _bookRepo = bookRepo;
-    }
+        private readonly IBookService _bookService;
 
-    // Get all books
-    [HttpGet]
-    public async Task<IActionResult> GetBooks()
-    {
-        var books = await _bookRepo.GetAllBooksAsync();
-        return Ok(books);
-    }
-
-    // Get a single book by ID
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetBookById(int id)
-    {
-        var book = await _bookRepo.GetBookByIdAsync(id);
-        if (book == null)
+        public BookController(IBookService bookService)
         {
-            return NotFound();
-        }
-        return Ok(book);
-    }
-
-    // Create a new book
-    [HttpPost]
-    public async Task<IActionResult> AddBook([FromBody] Book book)
-    {
-        if (book == null)
-        {
-            return BadRequest();
+            _bookService = bookService;
         }
 
-        await _bookRepo.AddBookAsync(book);
-        return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, book);
-    }
+    
 
-    // Update an existing book
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateBook(int id, [FromBody] Book updatedBook)
-    {
-        if (updatedBook == null || updatedBook.Id != id)
+        // Get a single book by ID
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetBookById(int id)
         {
-            return BadRequest();
+            var book = await _bookService.GetBookByIdAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            return Ok(book);
         }
 
-        await _bookRepo.UpdateBookAsync(updatedBook);
-        return NoContent();
-    }
+        // Create a new book
+        [HttpPost]
+        public async Task<IActionResult> CreateBook([FromBody] BookCreateDto dto)
+        {
+            if (dto == null)
+            {
+                return BadRequest();
+            }
 
-    // Delete a book
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteBook(int id)
-    {
-        await _bookRepo.DeleteBookAsync(id);
-        return NoContent();
+            var createdBook = await _bookService.CreateBookAsync(dto);
+            return CreatedAtAction(nameof(GetBookById), new { id = createdBook.Id }, createdBook);
+        }
+
+
     }
 }

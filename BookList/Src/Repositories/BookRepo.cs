@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using BookList.Domain;
 using BookList.Data;
+using BookList.Repository.Interfaces;
 
-public class BookRepo
+public class BookRepo : IBookRepo
 {
     private readonly BookContext _context;
 
