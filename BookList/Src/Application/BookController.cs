@@ -43,6 +43,13 @@ namespace BookList.Api.Controllers // <-- or whatever your namespace is
             return CreatedAtAction(nameof(GetBookById), new { id = createdBook.Id }, createdBook);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetBooks()
+        {
+        var books = await _bookService.GetAllBooksAsync();
+        return Ok(books);
+        }   
+
 
     }
 }

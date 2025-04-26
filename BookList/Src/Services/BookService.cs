@@ -36,5 +36,32 @@ public class BookService : IBookService
     {
         return await _bookRepo.GetBookByIdAsync(id);
     }
+
+    public async Task<List<BookResponseDto>> GetAllBooksAsync()
+{
+    var books = await _bookRepo.GetAllBooksAsync();
+
+    // Map books to BookResponseDto
+    var bookDtos = books.Select(book => new BookResponseDto
+    {
+        Id = book.Id,
+        Title = book.Title,
+        Year = book.Year,
+        PageCount = book.PageCount,
+        Blurp = book.Blurp,
+        Category = book.Category,
+        Author = new AuthorResponseDto
+        {
+            FirstName = book.Author.FirstName,
+            LastName = book.Author.LastName
+        },
+        Publisher = new PublisherResponseDto
+        {
+            Name = book.Publisher.Name
+        }
+    }).ToList();
+
+    return bookDtos;
+}
 }
 
