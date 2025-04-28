@@ -35,6 +35,8 @@ public class Program
         // Configure the middleware pipeline
         ConfigureMiddleware(app);
 
+        ApplyMigrations(app);
+
         Console.WriteLine("📚 BookList API configured and ready");
 
         // Run the application
@@ -123,5 +125,15 @@ public class Program
         app.UseHttpsRedirection();    // Ensure secure connections
         app.UseAuthorization();       // Use authorization middleware (can be expanded with authentication)
         app.MapControllers();         // Map the controller routes
+    }
+
+    public static void ApplyMigrations(WebApplication app)
+    {
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<BookContext>();
+        dbContext.Database.Migrate(); // Applies migrations
+        Console.WriteLine("✅ Migrations applied.");
+    }
     }
 }
