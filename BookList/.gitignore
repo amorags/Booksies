@@ -12,8 +12,6 @@ appsettings.Development.json
 appsettings.Production.json
 
 
-# Entity Framework migrations
-Migrations/
 
 # Local db files
 *.mdf
