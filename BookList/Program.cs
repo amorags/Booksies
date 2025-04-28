@@ -97,11 +97,12 @@ public class Program
         // Register repositories
         builder.Services.AddScoped<IAuthorRepo, AuthorRepo>();
         builder.Services.AddScoped<IBookRepo, BookRepo>();
-        builder.Services.AddScoped<PublisherRepo>();
+        builder.Services.AddScoped<IPublisherRepo, PublisherRepo>();
 
         // Register application services
         builder.Services.AddScoped<IAuthorService, AuthorService>();
         builder.Services.AddScoped<IBookService, BookService>();
+        builder.Services.AddScoped<IPublisherService, PublisherService>();
         // Add controllers
         builder.Services.AddControllers();
 

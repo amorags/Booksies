@@ -1,30 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using BookList.Domain;
+using BookList.Application.Dtos;
+using BookList.Services.Interfaces;
 
 [ApiController]
 [Route("api/[controller]")]
 public class PublisherController : ControllerBase
 {
-    private readonly PublisherRepo _publisherRepo;
+    private readonly IPublisherService _publisherService;
 
-    public PublisherController(PublisherRepo publisherRepo)
+    public PublisherController(IPublisherService publisherService)
     {
-        _publisherRepo = publisherRepo;
+        _publisherService = publisherService;
     }
 
-    // Get all publishers
-    [HttpGet]
-    public async Task<IActionResult> GetPublishers()
-    {
-        var publishers = await _publisherRepo.GetAllPublishersAsync();
-        return Ok(publishers);
-    }
+   
 
     // Get a single publisher by ID
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPublisherById(int id)
     {
-        var publisher = await _publisherRepo.GetPublisherByIdAsync(id);
+        var publisher = await _publisherService.GetPublisherByIdAsync(id);
         if (publisher == null)
         {
             return NotFound();
@@ -34,35 +30,15 @@ public class PublisherController : ControllerBase
 
     // Create a new publisher
     [HttpPost]
-    public async Task<IActionResult> AddPublisher([FromBody] Publisher publisher)
+    public async Task<IActionResult> AddPublisher([FromBody] createPublisherDto dto)
     {
-        if (publisher == null)
+        if (dto == null)
         {
             return BadRequest("Publisher cannot be null.");
         }
 
-        await _publisherRepo.AddPublisherAsync(publisher);
+        var publisher = await _publisherService.CreatePublisherAsync(dto);
         return CreatedAtAction(nameof(GetPublisherById), new { id = publisher.Id }, publisher);
     }
 
-    // Update an existing publisher
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePublisher(int id, [FromBody] Publisher updatedPublisher)
-    {
-        if (updatedPublisher == null || updatedPublisher.Id != id)
-        {
-            return BadRequest("Publisher ID mismatch.");
-        }
-
-        await _publisherRepo.UpdatePublisherAsync(updatedPublisher);
-        return NoContent();
-    }
-
-    // Delete a publisher
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePublisher(int id)
-    {
-        await _publisherRepo.DeletePublisherAsync(id);
-        return NoContent();
-    }
 }
