@@ -40,7 +40,7 @@ public class Program
         Console.WriteLine("📚 BookList API configured and ready");
 
         // Run the application
-        app.Run();
+        app.Run("http://0.0.0.0:9090");
     }
 
     // Get the database connection string from environment variables

@@ -19,6 +19,6 @@ COPY --from=build /app/out .
 
 COPY .env .
 
-EXPOSE 8080
+EXPOSE 9090
 
 ENTRYPOINT ["dotnet", "BookList.dll"]
