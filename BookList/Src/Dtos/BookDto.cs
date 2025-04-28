@@ -11,6 +11,8 @@ namespace BookList.Application.Dtos;
         public int Year { get; set; }
         public int PageCount { get; set; }
         public string Blurp { get; set; } = string.Empty;
+
+        public string ISBN {get; set;} = string.Empty;
         public int AuthorId { get; set; }
         public int PublisherId { get; set; }
         public string CoverUrl {get; set;} = string.Empty;
@@ -28,6 +30,9 @@ namespace BookList.Application.Dtos;
         public int Year { get; set; }
         public int PageCount { get; set; }
         public string Blurp { get; set; } = string.Empty;
+
+        public string ISBN {get; set;} = string.Empty;
+        
         public Category Category { get; set; }
         public AuthorResponseDto Author { get; set; } = null!;
         public PublisherResponseDto Publisher { get; set; } = null!;

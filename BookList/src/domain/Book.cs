@@ -10,6 +10,8 @@ public class Book
 
     public string CoverUrl {get; set;} = string.Empty;
 
+    public string ISBN {get; set;} = string.Empty;
+
     public int AuthorId { get; set; }
     public Author Author { get; set; } = null!;
 
