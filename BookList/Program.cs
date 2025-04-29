@@ -34,6 +34,9 @@ public class Program
 
         // Configure the middleware pipeline
         ConfigureMiddleware(app);
+        
+        // 🛡️ Enable CORS
+        app.UseCors("AllowFrontend");
 
         ApplyMigrations(app);
 
@@ -108,14 +111,15 @@ public class Program
         builder.Services.AddScoped<IBookService, BookService>();
         builder.Services.AddScoped<IPublisherService, PublisherService>();
 
-        // Add CORS policy
+        // 🛡️ Add CORS
         builder.Services.AddCors(options =>
         {
-        options.AddPolicy("AllowLocalhost3000", policy =>
+            options.AddPolicy("AllowFrontend", policy =>
             {
-            policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+                policy.WithOrigins("http://localhost:3000") // your frontend URL
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
         });
 
