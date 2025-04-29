@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using BookList.Application.Dtos;
 using BookList.Domain;
 using BookList.Services.Interfaces;
+using Microsoft.Extensions.Options;
 
 
 [ApiController]
@@ -9,10 +10,12 @@ using BookList.Services.Interfaces;
 public class AuthorController : ControllerBase
 {
     private readonly IAuthorService _authorService;
+    private readonly FeatureToggles _features;
 
-    public AuthorController(IAuthorService authorService)
+    public AuthorController(IOptions<FeatureToggles> feature, IAuthorService authorService)
     {
         _authorService = authorService;
+        _features = feature.Value;
     }
 
     // Create a new author
@@ -28,15 +31,20 @@ public class AuthorController : ControllerBase
         return CreatedAtAction(nameof(GetAuthorById), new { id = author.Id }, author);
     }
 
-    // You should already have this method to support CreatedAtAction
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetAuthorById(int id)
-    {
+        public async Task<IActionResult> GetAuthorById(int id)
+        {
+        if (!_features.EnableBooksByAuthor)
+        {
+        return NotFound("This feature is not available yet.");
+        }
+
         var author = await _authorService.GetAuthorByIdAsync(id);
         if (author == null)
         {
-            return NotFound();
+        return NotFound();
         }
+
         return Ok(author);
     }
 }

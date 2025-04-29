@@ -101,6 +101,8 @@ public class Program
         builder.Services.AddScoped<IBookRepo, BookRepo>();
         builder.Services.AddScoped<IPublisherRepo, PublisherRepo>();
 
+        builder.Services.Configure<FeatureToggles>(builder.Configuration.GetSection("FeatureToggles"));
+
         // Register application services
         builder.Services.AddScoped<IAuthorService, AuthorService>();
         builder.Services.AddScoped<IBookService, BookService>();
