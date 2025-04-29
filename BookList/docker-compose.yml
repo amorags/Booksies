@@ -7,34 +7,32 @@ services:
       POSTGRES_USER: youruser
       POSTGRES_PASSWORD: yourpassword
       POSTGRES_DB: yourdb
+    ports:
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "youruser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - booknetwork
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "youruser", "-d", "yourdb"]
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 5s
 
   bookservice:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Database=yourdb;Username=youruser;Password=yourpassword
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - booknetwork
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 5s
 
   authdb:
     image: postgres:16
@@ -42,32 +40,30 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: AuthServiceDb
+    ports:
+      - "5555:5432"
     volumes:
       - auth-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - booknetwork
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "AuthServiceDb"]
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 5s
 
   authbackend:
     image: amorags/authbackend:v1.0
+    ports:
+      - "8080:8080"
     environment:
       - ConnectionStrings__DefaultConnection=Host=authdb;Database=AuthServiceDb;Username=postgres;Password=mysecretpassword
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
-      - authdb
+      authdb:
+        condition: service_healthy
     networks:
       - booknetwork
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 5s
 
 volumes:
   postgres-data:

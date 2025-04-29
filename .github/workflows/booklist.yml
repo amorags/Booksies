@@ -9,24 +9,16 @@ on:
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
-    timeout-minutes: 4  # Timeout for the entire job set to 2 minutes
-
-    services:
-      docker:
-        image: docker:24.0.5
-        options: --privileged
+    timeout-minutes: 2
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Set up Docker Compose
         run: |
           sudo apt-get update
-          sudo apt-get install docker-compose -y
+          sudo apt-get install -y docker-compose
 
       - name: Create .env file
         run: |
@@ -36,17 +28,31 @@ jobs:
           echo "DB_USER=youruser" >> .env
           echo "DB_PASSWORD=yourpassword" >> .env
 
-      - name: Build and start services
+      - name: Start services
         run: |
           cd BookList
-          docker-compose up --build
+          docker-compose up -d --build
 
-      - name: Wait for services to become healthy
-        run: sleep 20
-
-      - name: Curl BookService health endpoint
+      - name: Wait for health checks
         run: |
-          curl --fail http://localhost:9090/swagger/index.html || (docker-compose logs && exit 1)
+          cd BookList
+          docker-compose ps
+          for i in {1..10}; do
+            if docker-compose ps | grep "healthy"; then
+              echo "All services healthy."
+              exit 0
+            fi
+            echo "Waiting for services to be healthy..."
+            sleep 10
+          done
+          echo "Services did not become healthy in time."
+          docker-compose logs
+          exit 1
+
+      - name: Curl BookService
+        run: curl --fail http://localhost:9090/swagger/index.html
 
       - name: Shut down
-        run: docker-compose down -v
+        run: |
+          cd BookList
+          docker-compose down -v
