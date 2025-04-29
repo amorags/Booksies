@@ -32,13 +32,6 @@ jobs:
           cd BookList
           docker compose up -d --build
           
-      - name: Wait for services to start
-        run: |
-          echo "Waiting for services to start..."
-          sleep 30  # Give more time for services to start
-          docker compose ps
-          docker compose logs
-          
       - name: Check if services are running
         run: |
           if ! docker compose ps --services --filter "status=running" | grep -q "bookservice"; then
