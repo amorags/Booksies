@@ -1,0 +1,49 @@
+name: BookList CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:24.0.5
+        options: --privileged
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install docker-compose -y
+
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=db" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_NAME=yourdb" >> .env
+          echo "DB_USER=youruser" >> .env
+          echo "DB_PASSWORD=yourpassword" >> .env
+
+      - name: Build and start services
+        run: docker-compose up -d --build
+
+      - name: Wait for services to become healthy
+        run: sleep 20
+
+      - name: Curl BookService health endpoint
+        run: |
+          curl --fail http://localhost:9090/swagger/index.html || (docker-compose logs && exit 1)
+
+      - name: Shut down
+        run: docker-compose down -v
