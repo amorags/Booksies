@@ -37,7 +37,7 @@ jobs:
 
       - name: Build and start services
         run: cd BookList
-             docker-compose up -d --build
+             docker-compose up --build
 
       - name: Wait for services to become healthy
         run: sleep 20
