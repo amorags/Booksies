@@ -28,12 +28,20 @@ jobs:
           
       - name: Start services
         run: |
-          # Assuming docker-compose.yml is in the root directory
           cd BookList
           docker compose up -d --build
           
+      - name: Wait for services to start
+        run: |
+          echo "Waiting for services to start..."
+          sleep 30  # Give more time for services to start
+          cd BookList
+          docker compose ps
+          docker compose logs
+          
       - name: Check if services are running
         run: |
+          cd BookList
           if ! docker compose ps --services --filter "status=running" | grep -q "bookservice"; then
             echo "BookService is not running"
             docker compose logs bookservice
