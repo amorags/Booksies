@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         
-      # Use Docker Compose V2 which is pre-installed on GitHub runners
+      # Docker Compose V2 is pre-installed on GitHub runners
       - name: Check Docker and Docker Compose versions
         run: |
           docker --version
@@ -31,14 +31,16 @@ jobs:
           cd BookList
           docker compose up -d --build
           
-      - name: Wait for services to start
+      # Give services some time to start up and initialize
+      - name: Wait for services to initialize
         run: |
-          echo "Waiting for services to start..."
-          sleep 30  # Give more time for services to start
+          echo "Waiting for services to initialize..."
+          sleep 45  # Increased wait time
           cd BookList
           docker compose ps
           docker compose logs
           
+      # Check service status
       - name: Check if services are running
         run: |
           cd BookList
@@ -47,26 +49,36 @@ jobs:
             docker compose logs bookservice
             exit 1
           fi
+          echo "BookService is running"
+          
           if ! docker compose ps --services --filter "status=running" | grep -q "authbackend"; then
             echo "AuthBackend is not running"
             docker compose logs authbackend
             exit 1
           fi
+          echo "AuthBackend is running"
           
-      - name: Curl BookService
+      # Try to access the Swagger UI with retries
+      - name: Test BookService API
         run: |
+          cd BookList
           # Add retries for the curl command
-          for i in {1..5}; do
+          for i in {1..6}; do
+            echo "Attempt $i to connect to BookService..."
             if curl --fail --max-time 10 http://localhost:9090/swagger/index.html; then
               echo "Successfully connected to BookService"
               exit 0
             fi
-            echo "Attempt $i failed, retrying in 5 seconds..."
-            sleep 5
+            echo "Attempt $i failed, retrying in 10 seconds..."
+            sleep 10
           done
-          echo "Could not connect to BookService"
+          echo "Could not connect to BookService after multiple attempts"
+          docker compose logs bookservice
           exit 1
           
+      # Always shut down services, even if previous steps failed
       - name: Shut down
         if: always()
-        run: docker compose down -v
+        run: |
+          cd BookList
+          docker compose down -v

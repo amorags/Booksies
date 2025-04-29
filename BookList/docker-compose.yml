@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   db:
     image: postgres:16
@@ -13,7 +12,12 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - booknetwork
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U youruser -d yourdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
   bookservice:
     build:
       context: .
@@ -23,11 +27,16 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Database=yourdb;Username=youruser;Password=yourpassword
       - ASPNETCORE_ENVIRONMENT=Development
+      # Add a retry mechanism for database connections
+      - DB_CONNECTION_RETRIES=5
+      - DB_CONNECTION_RETRY_DELAY=5
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - booknetwork
-
+    # Don't add health check yet if you don't have a /health endpoint
+      
   authdb:
     image: postgres:16
     environment:
@@ -40,7 +49,12 @@ services:
       - auth-postgres-data:/var/lib/postgresql/data
     networks:
       - booknetwork
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d AuthServiceDb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
   authbackend:
     image: amorags/authbackend:v1.0
     ports:
@@ -49,13 +63,14 @@ services:
       - ConnectionStrings__DefaultConnection=Host=authdb;Database=AuthServiceDb;Username=postgres;Password=mysecretpassword
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
-      - authdb
+      authdb:
+        condition: service_healthy
     networks:
       - booknetwork
-
+    # Don't add health check yet if you don't have a /health endpoint
+      
 volumes:
   postgres-data:
   auth-postgres-data:
-
 networks:
   booknetwork:
