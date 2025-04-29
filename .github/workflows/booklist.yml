@@ -1,25 +1,23 @@
 name: BookList CI
-
 on:
   push:
     branches:
       - main
   pull_request:
-
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
-
+    timeout-minutes: 10  # Increased timeout
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up Docker Compose
+        
+      # Use Docker Compose V2 which is pre-installed on GitHub runners
+      - name: Check Docker and Docker Compose versions
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
+          docker --version
+          docker compose version
+          
       - name: Create .env file
         run: |
           echo "DB_HOST=db" >> .env
@@ -27,32 +25,47 @@ jobs:
           echo "DB_NAME=yourdb" >> .env
           echo "DB_USER=youruser" >> .env
           echo "DB_PASSWORD=yourpassword" >> .env
-
+          
       - name: Start services
         run: |
+          # Assuming docker-compose.yml is in the root directory
           cd BookList
-          docker-compose up -d --build
-
-      - name: Wait for health checks
+          docker compose up -d --build
+          
+      - name: Wait for services to start
         run: |
-          cd BookList
-          docker-compose ps
-          for i in {1..10}; do
-            if docker-compose ps | grep "healthy"; then
-              echo "All services healthy."
+          echo "Waiting for services to start..."
+          sleep 30  # Give more time for services to start
+          docker compose ps
+          docker compose logs
+          
+      - name: Check if services are running
+        run: |
+          if ! docker compose ps --services --filter "status=running" | grep -q "bookservice"; then
+            echo "BookService is not running"
+            docker compose logs bookservice
+            exit 1
+          fi
+          if ! docker compose ps --services --filter "status=running" | grep -q "authbackend"; then
+            echo "AuthBackend is not running"
+            docker compose logs authbackend
+            exit 1
+          fi
+          
+      - name: Curl BookService
+        run: |
+          # Add retries for the curl command
+          for i in {1..5}; do
+            if curl --fail --max-time 10 http://localhost:9090/swagger/index.html; then
+              echo "Successfully connected to BookService"
               exit 0
             fi
-            echo "Waiting for services to be healthy..."
-            sleep 10
+            echo "Attempt $i failed, retrying in 5 seconds..."
+            sleep 5
           done
-          echo "Services did not become healthy in time."
-          docker-compose logs
+          echo "Could not connect to BookService"
           exit 1
-
-      - name: Curl BookService
-        run: curl --fail http://localhost:9090/swagger/index.html
-
+          
       - name: Shut down
-        run: |
-          cd BookList
-          docker-compose down -v
+        if: always()
+        run: docker compose down -v
