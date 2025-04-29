@@ -15,6 +15,7 @@ public class Book
     public int AuthorId { get; set; }
     public Author Author { get; set; } = null!;
 
+
     public Category Category {get; set;}
 
     public int PublisherId { get; set; }
