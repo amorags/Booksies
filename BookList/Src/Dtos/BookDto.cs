@@ -35,7 +35,7 @@ namespace BookList.Application.Dtos;
         
         public string ISBN {get; set;} = string.Empty;
         
-        [JsonConverter(typeof(JsonStringEnumConverter))]
+        //[JsonConverter(typeof(JsonStringEnumConverter))]
         public Category Category { get; set; }
         public AuthorResponseDto Author { get; set; } = null!;
         public PublisherResponseDto Publisher { get; set; } = null!;

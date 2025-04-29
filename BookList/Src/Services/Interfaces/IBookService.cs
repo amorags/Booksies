@@ -8,7 +8,7 @@ namespace BookList.Services.Interfaces;
     {
         Task<Book> CreateBookAsync(BookCreateDto dto);
 
-        Task<Book?> GetBookByIdAsync(int id);
+        Task<BookResponseDto?> GetBookByIdAsync(int id);
 
         Task<List<BookResponseDto>> GetAllBooksAsync();
     }

@@ -11,6 +11,7 @@ namespace BookList.Data
         public DbSet<Author> Authors { get; set; } = null!;
         public DbSet<Publisher> Publishers { get; set; } = null!;
 
+        public DbSet<FeatureToggle> FeatureToggle {get; set;} =null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Book>().HasKey(b => b.Id);
