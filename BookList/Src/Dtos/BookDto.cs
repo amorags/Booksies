@@ -31,6 +31,8 @@ namespace BookList.Application.Dtos;
         public int PageCount { get; set; }
         public string Blurp { get; set; } = string.Empty;
 
+        public string CoverUrl {get; set;} = string.Empty;
+        
         public string ISBN {get; set;} = string.Empty;
         
         public Category Category { get; set; }

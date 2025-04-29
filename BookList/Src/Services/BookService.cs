@@ -23,6 +23,8 @@ public class BookService : IBookService
             PageCount = dto.PageCount,
             Blurp = dto.Blurp,
             AuthorId = dto.AuthorId,
+            ISBN = dto.ISBN,
+            CoverUrl = dto.CoverUrl,
             PublisherId = dto.PublisherId,
             Category = dto.Category
         };
@@ -50,6 +52,8 @@ public class BookService : IBookService
         PageCount = book.PageCount,
         Blurp = book.Blurp,
         Category = book.Category,
+        CoverUrl = book.CoverUrl,
+        ISBN = book.ISBN,
         Author = new AuthorResponseDto
         {
             FirstName = book.Author.FirstName,

@@ -11,11 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "youruser"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - booknetwork
 
@@ -29,8 +24,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db;Database=yourdb;Username=youruser;Password=yourpassword
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     networks:
       - booknetwork
 
@@ -44,11 +38,6 @@ services:
       - "5555:5432"
     volumes:
       - auth-postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - booknetwork
 
@@ -60,8 +49,7 @@ services:
       - ConnectionStrings__DefaultConnection=Host=authdb;Database=AuthServiceDb;Username=postgres;Password=mysecretpassword
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
-      authdb:
-        condition: service_healthy
+      - authdb
     networks:
       - booknetwork
 
