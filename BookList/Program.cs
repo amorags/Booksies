@@ -107,6 +107,18 @@ public class Program
         builder.Services.AddScoped<IAuthorService, AuthorService>();
         builder.Services.AddScoped<IBookService, BookService>();
         builder.Services.AddScoped<IPublisherService, PublisherService>();
+
+        // Add CORS policy
+        builder.Services.AddCors(options =>
+        {
+        options.AddPolicy("AllowLocalhost3000", policy =>
+            {
+            policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+            });
+        });
+
         // Add controllers
         builder.Services.AddControllers();
 
@@ -124,6 +136,7 @@ public class Program
             app.UseSwaggerUI();       // Swagger UI to explore the API
         }
 
+        app.UseCors("AllowLocalhost3000");
         app.UseHttpsRedirection();    // Ensure secure connections
         app.UseAuthorization();       // Use authorization middleware (can be expanded with authentication)
         app.MapControllers();         // Map the controller routes
